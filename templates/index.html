@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SquishIt — Image Compressor</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <!-- ── HEADER ──────────────────────────────────────────── -->
+  <header class="header">
+    <div class="logo">Squish<span>It</span></div>
+    <p class="tagline">Nén ảnh · Giữ chất lượng · Không lưu dữ liệu</p>
+  </header>
+
+  <main class="main">
+
+    <!-- BƯỚC 1: Drop zone -->
+    <section class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Khu vực upload ảnh">
+      <div class="drop-inner">
+        <div class="drop-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="16" width="48" height="34" rx="4" stroke="currentColor" stroke-width="2.5"/>
+            <circle cx="22" cy="28" r="5" stroke="currentColor" stroke-width="2.5"/>
+            <path d="M8 38l14-10 10 8 8-6 16 12" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M32 2v22M24 10l8-8 8 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="drop-title">Kéo thả ảnh vào đây</p>
+        <p class="drop-or">hoặc</p>
+        <label class="btn-browse" for="fileInput">Chọn file</label>
+        <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp" hidden />
+        <p class="drop-formats">JPG &nbsp;·&nbsp; PNG &nbsp;·&nbsp; WebP &nbsp;·&nbsp; tối đa 20MB</p>
+      </div>
+    </section>
+
+    <!-- BƯỚC 2: Workspace (preview + controls) -->
+    <section class="workspace" id="workspace" aria-hidden="true">
+
+      <!-- Preview ảnh gốc / sau nén -->
+      <div class="preview-panel">
+        <div class="preview-box">
+          <span class="preview-label">Ảnh gốc</span>
+          <div class="preview-img-wrap">
+            <img id="imgOriginal" alt="Ảnh gốc" />
+          </div>
+          <span class="preview-meta" id="metaOriginal">—</span>
+        </div>
+        <div class="preview-divider" aria-hidden="true"><span>→</span></div>
+        <div class="preview-box">
+          <span class="preview-label">Sau khi nén</span>
+          <div class="preview-img-wrap">
+            <div class="preview-empty" id="previewEmpty"><span>Chưa nén</span></div>
+            <img id="imgCompressed" alt="Ảnh đã nén" style="display:none" />
+          </div>
+          <span class="preview-meta" id="metaCompressed">—</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-panel">
+
+        <!-- ① Xóa Metadata -->
+        <div class="control-group">
+          <label class="group-title">Tùy chọn nén</label>
+          <div class="toggle-list">
+
+            <label class="toggle-item" for="stripMeta">
+              <div class="toggle-info">
+                <span class="toggle-name">Xóa Metadata</span>
+                <span class="toggle-desc">Xóa EXIF, GPS, thông tin máy ảnh</span>
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="stripMeta" checked />
+                <span class="toggle-track"></span>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- ② Resize theo scale -->
+        <div class="control-group">
+          <label for="resizeScale" class="group-title">
+            Resize ảnh
+            <span class="control-badge" id="resizeDisplay">100%</span>
+          </label>
+          <input type="range" id="resizeScale" min="10" max="100" value="100" step="5" />
+          <div class="range-labels"><span>Nhỏ hơn</span><span>Giữ nguyên</span></div>
+        </div>
+
+        <!-- ③ Chất lượng JPEG/WebP -->
+        <div class="control-group">
+          <label for="quality" class="group-title">
+            Chất lượng <small>(JPEG / WebP)</small>
+            <span class="control-badge" id="qualityDisplay">80</span>
+          </label>
+          <input type="range" id="quality" min="1" max="100" value="80" />
+          <div class="range-labels"><span>Nhỏ hơn</span><span>Tốt hơn</span></div>
+        </div>
+
+        <!-- ④ PNG Compression level -->
+        <div class="control-group">
+          <label for="pngLevel" class="group-title">
+            Mức nén PNG
+            <span class="control-badge" id="pngDisplay">9</span>
+          </label>
+          <input type="range" id="pngLevel" min="0" max="9" value="9" />
+          <div class="range-labels"><span>Nhanh hơn</span><span>Nhỏ hơn</span></div>
+        </div>
+
+        <!-- ⑤ Định dạng xuất -->
+        <div class="control-group">
+          <label class="group-title">Định dạng xuất</label>
+          <div class="format-group" role="group">
+            <button class="fmt-btn active" data-fmt="" type="button">Giữ nguyên</button>
+            <button class="fmt-btn" data-fmt="JPEG" type="button">JPG</button>
+            <button class="fmt-btn" data-fmt="PNG"  type="button">PNG</button>
+            <button class="fmt-btn" data-fmt="WEBP" type="button">WebP</button>
+          </div>
+        </div>
+
+        <!-- Nút hành động -->
+        <div class="action-row">
+          <button class="btn-compress" id="btnCompress" type="button">
+            <span class="btn-text">Nén ảnh</span>
+            <span class="btn-icon" aria-hidden="true">⚡</span>
+          </button>
+          <button class="btn-reset" id="btnReset" type="button" title="Chọn ảnh khác">↺</button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- BƯỚC 3: Result bar -->
+    <section class="result-bar" id="resultBar" aria-live="polite" aria-hidden="true">
+      <div class="result-stats">
+        <div class="stat-item">
+          <span class="stat-label">Gốc</span>
+          <span class="stat-value" id="statOriginal">—</span>
+        </div>
+        <div class="stat-arrow" aria-hidden="true">→</div>
+        <div class="stat-item">
+          <span class="stat-label">Sau nén</span>
+          <span class="stat-value highlight" id="statCompressed">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Giảm được</span>
+          <span class="stat-value accent" id="statSaved">—</span>
+        </div>
+      </div>
+      <a class="btn-download" id="btnDownload" href="#" download>⬇&nbsp; Tải về</a>
+    </section>
+
+  </main>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
+    <div class="spinner" aria-label="Đang xử lý"></div>
+    <p>Đang nén ảnh...</p>
+  </div>
+
+  <!-- Toast lỗi -->
+  <div class="toast" id="errorToast" role="alert" aria-live="assertive"></div>
+
+  <footer class="footer">
+    <p>Mọi xử lý diễn ra trên server của bạn — ảnh không được lưu lại.</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
