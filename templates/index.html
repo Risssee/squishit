@@ -68,7 +68,7 @@
       <!-- Controls -->
       <div class="controls-panel">
 
-        <!-- ① Xóa Metadata -->
+        <!-- ① Toggles -->
         <div class="control-group">
           <label class="group-title">Tùy chọn cài đặt</label>
           <div class="toggle-list">
@@ -80,6 +80,17 @@
               </div>
               <div class="toggle-switch">
                 <input type="checkbox" id="stripMeta" checked />
+                <span class="toggle-track"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item" for="pngOptimize">
+              <div class="toggle-info">
+                <span class="toggle-name">Tối ưu PNG</span>
+                <span class="toggle-desc">Giữ nguyên chất lượng</span>
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="pngOptimize" checked />
                 <span class="toggle-track"></span>
               </div>
             </label>
@@ -107,17 +118,7 @@
           <div class="range-labels"><span>Nhỏ hơn</span><span>Tốt hơn</span></div>
         </div>
 
-        <!-- ④ PNG Compression level -->
-        <div class="control-group">
-          <label for="pngLevel" class="group-title">
-            Tối ưu PNG
-            <span class="control-badge" id="pngDisplay">9</span>
-          </label>
-          <input type="range" id="pngLevel" min="0" max="9" value="9" />
-          <div class="range-labels"><span>Nhanh hơn</span><span>Nhỏ hơn</span></div>
-        </div>
-
-        <!-- ⑤ Định dạng xuất -->
+        <!-- ④ Định dạng xuất -->
         <div class="control-group">
           <label class="group-title">Định dạng xuất</label>
           <div class="format-group" role="group">

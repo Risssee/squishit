@@ -3,7 +3,7 @@
    Flow:
    1. Chọn / kéo thả ảnh → hiện preview gốc + thông tin
    2. Chọn các kỹ thuật nén (toggle, slider)
-   3. Nhấn "Nén ảnh" → gọi /compress → hiện kết quả
+   3. Nhấn "Tối ưu ảnh" → gọi /compress → hiện kết quả
    4. Tải về hoặc reset
 ═══════════════════════════════════════════════ */
 
@@ -23,14 +23,15 @@ const previewEmpty    = document.getElementById("previewEmpty");
 const metaOriginal    = document.getElementById("metaOriginal");
 const metaCompressed  = document.getElementById("metaCompressed");
 
-// Controls
+// Controls — toggles
 const stripMetaToggle = document.getElementById("stripMeta");
+const pngOptimize     = document.getElementById("pngOptimize");
+
+// Controls — sliders
 const resizeSlider    = document.getElementById("resizeScale");
 const resizeDisplay   = document.getElementById("resizeDisplay");
 const qualitySlider   = document.getElementById("quality");
 const qualityDisplay  = document.getElementById("qualityDisplay");
-const pngSlider       = document.getElementById("pngLevel");
-const pngDisplay      = document.getElementById("pngDisplay");
 const fmtButtons      = document.querySelectorAll(".fmt-btn");
 
 // Actions
@@ -108,13 +109,14 @@ function handleFile(file) {
 /* ── 4. PREVIEW ẢNH GỐC ────────────────────── */
 
 /**
- * Hiện ảnh gốc và thông tin (kích thước px + dung lượng).
+ * Hiện ảnh gốc và thông tin (định dạng + kích thước px + dung lượng).
  * Reset phần kết quả về trạng thái ban đầu.
  */
 function loadPreview(file) {
   const url = URL.createObjectURL(file);
   imgOriginal.src = url;
-  // Lấy định dạng từ MIME type (image/jpeg → JPEG)
+
+  // Lấy định dạng từ MIME type (image/jpeg → JPG)
   const fmt = file.type.split("/")[1]?.toUpperCase().replace("JPEG", "JPG") || "?";
   metaOriginal.textContent = formatSize(file.size);
 
@@ -140,7 +142,6 @@ function loadPreview(file) {
 
 resizeSlider.addEventListener("input",  () => resizeDisplay.textContent  = resizeSlider.value + "%");
 qualitySlider.addEventListener("input", () => qualityDisplay.textContent = qualitySlider.value);
-pngSlider.addEventListener("input",     () => pngDisplay.textContent     = pngSlider.value);
 
 // Format buttons — chỉ một nút được active tại một thời điểm
 fmtButtons.forEach((btn) => {
@@ -164,16 +165,15 @@ btnCompress.addEventListener("click", async () => {
   const formData = new FormData();
   formData.append("image",              currentFile);
   formData.append("strip_meta",         stripMetaToggle.checked.toString());
-  formData.append("resize_scale",       resizeSlider.value);     // 10–100, server chia 100
-  formData.append("quality",            qualitySlider.value);    // 1–95
-  formData.append("png_compress_level", pngSlider.value);        // 0–9
-  formData.append("output_format",      selectedFormat);         // "" | "JPEG" | "PNG" | "WEBP"
+  formData.append("resize_scale",       resizeSlider.value);              // 10–100, server chia 100
+  formData.append("quality",            qualitySlider.value);             // 1–100
+  formData.append("png_compress_level", pngOptimize.checked ? 9 : 0);    // bật → mức tối đa, tắt → không nén
+  formData.append("output_format",      selectedFormat);                  // "" | "JPEG" | "PNG" | "WEBP"
 
   try {
     const response = await fetch("/compress", { method: "POST", body: formData });
 
     if (!response.ok) {
-      // Server trả JSON lỗi
       let errMsg = "Có lỗi xảy ra khi nén ảnh";
       try { const d = await response.json(); errMsg = d.error || errMsg; } catch (_) {}
       throw new Error(errMsg);
@@ -186,10 +186,7 @@ btnCompress.addEventListener("click", async () => {
     // Đọc blob ảnh đã nén
     const blob = await response.blob();
 
-    // Hiện preview ảnh sau nén
     showCompressedPreview(blob, optimizedSize);
-
-    // Hiện thanh kết quả
     showResult(originalSize, optimizedSize, blob);
 
   } catch (err) {
@@ -229,10 +226,9 @@ function showResult(originalSize, optimizedSize, blob) {
   statCompressed.textContent = formatSize(optimizedSize);
 
   if (saved >= 0) {
-    statSaved.textContent = `−${formatSize(saved)} (${pct}%)`;
+    statSaved.textContent = `${formatSize(saved)} (${pct}%)`;
     statSaved.style.color = "var(--accent)";
   } else {
-    // Hiếm gặp: output lớn hơn gốc (PNG lossless nhỏ sẵn)
     statSaved.textContent = `+${formatSize(Math.abs(saved))}`;
     statSaved.style.color = "var(--error)";
   }
@@ -257,18 +253,18 @@ function resetAll() {
   fileInput.value = "";
 
   // Reset preview
-  imgOriginal.src  = "";
-  imgCompressed.src = "";
+  imgOriginal.src           = "";
+  imgCompressed.src         = "";
   imgCompressed.style.display = "none";
   previewEmpty.style.display  = "flex";
   metaOriginal.textContent    = "—";
   metaCompressed.textContent  = "—";
 
   // Reset controls về mặc định
-  stripMetaToggle.checked = true;
-  resizeSlider.value       = 100; resizeDisplay.textContent  = "100%";
-  qualitySlider.value      = 80;  qualityDisplay.textContent = "80";
-  pngSlider.value          = 9;   pngDisplay.textContent     = "9";
+  stripMetaToggle.checked    = true;
+  pngOptimize.checked        = true;
+  resizeSlider.value         = 100; resizeDisplay.textContent  = "100%";
+  qualitySlider.value        = 80;  qualityDisplay.textContent = "80";
   fmtButtons.forEach((b) => b.classList.remove("active"));
   fmtButtons[0].classList.add("active");
 
