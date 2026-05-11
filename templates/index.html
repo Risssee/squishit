@@ -18,7 +18,7 @@
   <!-- ── HEADER ──────────────────────────────────────────── -->
   <header class="header">
     <div class="logo">Squish<span>It</span></div>
-    <p class="tagline">Nén ảnh · Giữ chất lượng · Không lưu dữ liệu</p>
+    <p class="tagline">Tối ưu hình ảnh · Giảm dung lượng · Giữ chất lượng</p>
   </header>
 
   <main class="main">
@@ -38,7 +38,7 @@
         <p class="drop-or">hoặc</p>
         <label class="btn-browse" for="fileInput">Chọn file</label>
         <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp" hidden />
-        <p class="drop-formats">JPG &nbsp;·&nbsp; PNG &nbsp;·&nbsp; WebP &nbsp;·&nbsp; tối đa 20MB</p>
+        <p class="drop-formats">JPG &nbsp;·&nbsp; PNG &nbsp;·&nbsp; WebP &nbsp;·&nbsp; Tối đa 20MB</p>
       </div>
     </section>
 
@@ -70,13 +70,13 @@
 
         <!-- ① Xóa Metadata -->
         <div class="control-group">
-          <label class="group-title">Tùy chọn nén</label>
+          <label class="group-title">Tùy chọn cài đặt</label>
           <div class="toggle-list">
 
             <label class="toggle-item" for="stripMeta">
               <div class="toggle-info">
-                <span class="toggle-name">Xóa Metadata</span>
-                <span class="toggle-desc">Xóa EXIF, GPS, thông tin máy ảnh</span>
+                <span class="toggle-name">Metadata</span>
+                <span class="toggle-desc">Loại bỏ thông tin ảnh</span>
               </div>
               <div class="toggle-switch">
                 <input type="checkbox" id="stripMeta" checked />
@@ -90,7 +90,7 @@
         <!-- ② Resize theo scale -->
         <div class="control-group">
           <label for="resizeScale" class="group-title">
-            Resize ảnh
+            Kích thước ảnh
             <span class="control-badge" id="resizeDisplay">100%</span>
           </label>
           <input type="range" id="resizeScale" min="10" max="100" value="100" step="5" />
@@ -100,7 +100,7 @@
         <!-- ③ Chất lượng JPEG/WebP -->
         <div class="control-group">
           <label for="quality" class="group-title">
-            Chất lượng <small>(JPEG / WebP)</small>
+            Chất lượng ảnh<small>(JPEG / WebP)</small>
             <span class="control-badge" id="qualityDisplay">80</span>
           </label>
           <input type="range" id="quality" min="1" max="100" value="80" />
@@ -110,7 +110,7 @@
         <!-- ④ PNG Compression level -->
         <div class="control-group">
           <label for="pngLevel" class="group-title">
-            Mức nén PNG
+            Tối ưu PNG
             <span class="control-badge" id="pngDisplay">9</span>
           </label>
           <input type="range" id="pngLevel" min="0" max="9" value="9" />
@@ -131,7 +131,7 @@
         <!-- Nút hành động -->
         <div class="action-row">
           <button class="btn-compress" id="btnCompress" type="button">
-            <span class="btn-text">Nén ảnh</span>
+            <span class="btn-text">Tối ưu ảnh</span>
             <span class="btn-icon" aria-hidden="true">⚡</span>
           </button>
           <button class="btn-reset" id="btnReset" type="button" title="Chọn ảnh khác">↺</button>
@@ -165,14 +165,14 @@
   <!-- Loading overlay -->
   <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
     <div class="spinner" aria-label="Đang xử lý"></div>
-    <p>Đang nén ảnh...</p>
+    <p>Đang tối ưu ảnh...</p>
   </div>
 
   <!-- Toast lỗi -->
   <div class="toast" id="errorToast" role="alert" aria-live="assertive"></div>
 
   <footer class="footer">
-    <p>Mọi xử lý diễn ra trên server của bạn — ảnh không được lưu lại.</p>
+    <p>Mọi xử lý diễn ra trực tiếp trên server — ảnh không được lưu lại</p>
   </footer>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
